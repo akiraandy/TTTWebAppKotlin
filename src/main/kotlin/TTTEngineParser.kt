@@ -15,8 +15,8 @@ class TTTEngineParser {
         require.invoke(Clojure.read("clojure-tic-tac-toe.player"))
         val boardVector = vector.invoke(Clojure.read(convertStringArrayToListString(board)))
         val gameMap = map.invoke(keywordBoard, boardVector, inputKeyword, input, currentPlayer, getCurrentPlayer(boardVector), opponentPlayer, getOpponentPlayer(boardVector))
-        val board = turn.invoke(gameMap)
-        return convertVectorToList(board.toString())
+        val newBoard = turn.invoke(gameMap)
+        return convertVectorToList(newBoard.toString())
     }
 
     private fun convertStringArrayToListString(array: List<String>?): String {
