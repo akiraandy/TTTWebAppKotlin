@@ -10,16 +10,20 @@ class TTTEngineParser {
     private val inputKeyword = keyword.invoke("input")!!
     private val currentPlayer = keyword.invoke("current-player")!!
     private val opponentPlayer = keyword.invoke("opponent-player")!!
+    private val boardLength = 9
 
-    fun generateBoard(board: List<String>?, input: Int?): List<String> {
+    fun generateBoard(board: List<String>?, move: Int?): List<String> {
         require.invoke(Clojure.read("clojure-tic-tac-toe.player"))
         val boardVector = vector.invoke(Clojure.read(convertStringArrayToListString(board)))
-        val gameMap = map.invoke(keywordBoard, boardVector, inputKeyword, input, currentPlayer, getCurrentPlayer(boardVector), opponentPlayer, getOpponentPlayer(boardVector))
+        val gameMap = map.invoke(keywordBoard, boardVector, inputKeyword, move, currentPlayer, getCurrentPlayer(boardVector), opponentPlayer, getOpponentPlayer(boardVector))
         val newBoard = turn.invoke(gameMap)
         return convertVectorToList(newBoard.toString())
     }
 
     private fun convertStringArrayToListString(array: List<String>?): String {
+        if (array?.size != boardLength) {
+            throw InvalidBoardLengthException()
+        }
         val stringBuilder = StringBuilder()
         val iterator = array!!.iterator()
         stringBuilder.append("(")

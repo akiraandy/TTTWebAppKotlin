@@ -12,7 +12,7 @@ internal class GameControllerTest {
     private var response: HttpResponse = HttpResponse()
 
     @Serializable
-    data class MockData(val board: Array<String> = arrayOf("X", "1", "2", "3", "4", "5", "6", "7", "8"), val input: Int? = null)
+    data class MockData(val board: Array<String> = arrayOf("X", "1", "2", "3", "4", "5", "6", "7", "8"), val move: Int? = null)
 
     @org.junit.jupiter.api.BeforeEach
     fun setUp() {
