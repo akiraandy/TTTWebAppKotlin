@@ -7,7 +7,7 @@ class TTTEngineParser {
     private val map = Clojure.`var`("clojure.core", "hash-map")!!
     private val keyword = Clojure.`var`("clojure.core", "keyword")!!
     private val keywordBoard = keyword.invoke("board")!!
-    private val inputKeyword = keyword.invoke("move")!!
+    private val inputKeyword = keyword.invoke("input")!!
     private val currentPlayer = keyword.invoke("current-player")!!
     private val opponentPlayer = keyword.invoke("opponent-player")!!
     private val boardLength = 9
