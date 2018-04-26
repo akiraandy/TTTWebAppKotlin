@@ -7,9 +7,10 @@ class TTTEngineParser {
     private val map = Clojure.`var`("clojure.core", "hash-map")!!
     private val keyword = Clojure.`var`("clojure.core", "keyword")!!
     private val keywordBoard = keyword.invoke("board")!!
-    private val inputKeyword = keyword.invoke("input")!!
+    private val inputKeyword = keyword.invoke("move")!!
     private val currentPlayer = keyword.invoke("current-player")!!
     private val opponentPlayer = keyword.invoke("opponent-player")!!
+    private val boardLength = 9
 
     fun generateBoard(board: List<String>?, input: Int?): List<String> {
         require.invoke(Clojure.read("clojure-tic-tac-toe.player"))
@@ -20,6 +21,9 @@ class TTTEngineParser {
     }
 
     private fun convertStringArrayToListString(array: List<String>?): String {
+        if (array?.size != boardLength) {
+            throw InvalidBoardLengthException()
+        }
         val stringBuilder = StringBuilder()
         val iterator = array!!.iterator()
         stringBuilder.append("(")

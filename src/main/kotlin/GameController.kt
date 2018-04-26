@@ -11,16 +11,27 @@ class GameController : IController {
 
     override fun generateResponse(request: HttpRequest): HttpResponse {
         val httpResponse = HttpResponse()
-        val gameData = jsonParse.generateGameData(request.body.toString(Charset.defaultCharset()))
         try {
-            val board = tttEngineParser.generateBoard(gameData.board, gameData.input)
-            httpResponse.status = Status.OK
-            httpResponse.setBody(generateBody(board))
-        } catch (e: Exception) {
+            val gameData = jsonParse.generateGameData(request.body.toString(Charset.defaultCharset()))
+            try {
+                val board = tttEngineParser.generateBoard(gameData.board, gameData.move)
+                httpResponse.status = Status.OK
+                httpResponse.setBody(generateBody(board))
+            } catch (e: InvalidBoardLengthException) {
+                httpResponse.status = Status.Unprocessable_Entity
+                httpResponse.setBody("""{ "Error" : "Invalid board length" }""")
+            }
+        } catch (e: NumberFormatException) {
             httpResponse.status = Status.Unprocessable_Entity
             httpResponse.setBody("""{ "Error" : "Invalid Move" }""")
-            httpResponse.addHeader("Content-Type", "application/json")
+        } catch (e: IllegalArgumentException) {
+            httpResponse.status = Status.Unprocessable_Entity
+            httpResponse.setBody("""{ "Error" : "Invalid Board" }""")
+        } catch (e: kotlinx.serialization.MissingFieldException) {
+            httpResponse.status = Status.Unprocessable_Entity
+            httpResponse.setBody("""{ "Error" : "Board required" }""")
         }
+        httpResponse.addHeader("Content-Type", "application/json")
         return httpResponse
     }
 
