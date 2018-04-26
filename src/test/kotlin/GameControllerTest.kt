@@ -8,7 +8,9 @@ import org.junit.jupiter.api.Test
 
 internal class GameControllerTest {
     private val request: HttpRequest = HttpRequest("GET /move HTTP/1.1\n")
-    private val jsonResponse: String = "{board: [X, 1, 2, 3, O, 5, 6, 7, 8]}"
+    private val jsonResponse: String = """{"board":["X","1","2","3","O","5","6","7","8"],"errors":[]}"""
+    private val jsonResponseForInvalidMove: String = """{"board":["X","O","2","3","4","5","6","7","8"],"errors":["Space already occupied"]}"""
+    private val jsonForInvalidMove: String = JSON.stringify(GameData(arrayListOf("X", "O", "2", "3", "4", "5", "6", "7", "8"), 1))
     private var response: HttpResponse = HttpResponse()
 
     @Serializable
@@ -26,7 +28,21 @@ internal class GameControllerTest {
     }
 
     @Test
+    internal fun returns422IfError() {
+        request.body = jsonForInvalidMove.toByteArray()
+        response = GameController().generateResponse(request)
+        assertEquals(Status.Unprocessable_Entity, response.status)
+    }
+
+    @Test
     internal fun returnsComputerMoveIfThereIsNoMove() {
         assertEquals(jsonResponse, response.bodyAsString)
+    }
+
+    @Test
+    internal fun returnsBoardAndErrorIfPlayerMakesInvalidMove() {
+        request.body = jsonForInvalidMove.toByteArray()
+        response = GameController().generateResponse(request)
+        assertEquals(jsonResponseForInvalidMove, response.bodyAsString)
     }
 }
