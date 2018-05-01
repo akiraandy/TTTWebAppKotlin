@@ -66,12 +66,12 @@ class GameController : IController {
 
     private fun getJsonObject(request: HttpRequest, responseData: ResponseData): JsonObject {
         val parser = Parser()
-        try {
+        return try {
             val stringBuilder = StringBuilder(request.body.toString(Charset.defaultCharset()))
-            return parser.parse(stringBuilder) as JsonObject
+            parser.parse(stringBuilder) as JsonObject
         } catch (e: Exception) {
             responseData.errors.add("Invalid JSON")
-            return parser.parse(StringBuilder("{}")) as JsonObject
+            parser.parse(StringBuilder("{}")) as JsonObject
         }
     }
 
@@ -103,7 +103,7 @@ class GameController : IController {
     }
 
     private fun getMove(json: JsonObject, responseData: ResponseData): Int? {
-        val regex = Regex(validMove)
+        val regex = Regex(pattern = validMove)
         val move = json["move"]
         if (move != null && regex.containsMatchIn(move.toString())) {
             responseData.errors.add("Invalid Move")
