@@ -2,15 +2,19 @@ import clojure.java.api.Clojure
 
 class TTTEngineParser {
     private val vector = Clojure.`var`("clojure.core", "vec")!!
+    private val str = Clojure.`var`("clojure.core", "str")!!
     private val require = Clojure.`var`("clojure.core", "require")!!
     private val turn = Clojure.`var`("clojure-tic-tac-toe.player", "play-turn")!!
+    private val winner = Clojure.`var`("clojure-tic-tac-toe.rules", "winner?")!!
+    private val gameOver = Clojure.`var`("clojure-tic-tac-toe.rules", "game-over?")!!
+    private val getTheWinner = Clojure.`var`("clojure-tic-tac-toe.rules", "get-winner")!!
+    private val tie = Clojure.`var`("clojure-tic-tac-toe.rules", "tie?")!!
     private val map = Clojure.`var`("clojure.core", "hash-map")!!
     private val keyword = Clojure.`var`("clojure.core", "keyword")!!
     private val keywordBoard = keyword.invoke("board")!!
     private val inputKeyword = keyword.invoke("input")!!
     private val currentPlayer = keyword.invoke("current-player")!!
     private val opponentPlayer = keyword.invoke("opponent-player")!!
-    private val boardLength = 9
 
     fun generateBoard(board: List<String>?, move: Int?): List<String> {
         require.invoke(Clojure.read("clojure-tic-tac-toe.player"))
@@ -20,14 +24,42 @@ class TTTEngineParser {
         return convertVectorToList(newBoard.toString())
     }
 
+    fun getCurrentPlayerAsString(board: List<String>): String {
+        val boardVector = vector.invoke(Clojure.read(convertStringArrayToListString(board)))
+        val currentPlayer = str.invoke(getCurrentPlayer(boardVector)) as String
+        return convertSymbolToChar(currentPlayer)
+    }
+
+    fun getWinner(board: List<String>): String? {
+        require.invoke(Clojure.read("clojure-tic-tac-toe.rules"))
+        val boardVector = vector.invoke(Clojure.read(convertStringArrayToListString(board)))
+        val winner = getTheWinner.invoke(boardVector)
+        return if (winner != null) convertSymbolToChar(str.invoke(winner) as String) else winner
+    }
+
+    fun isGameOver(board: List<String>): Boolean {
+        require.invoke(Clojure.read("clojure-tic-tac-toe.rules"))
+        val boardVector = vector.invoke(Clojure.read(convertStringArrayToListString(board)))
+        return gameOver.invoke(boardVector) as Boolean
+    }
+
+    fun isThereWinner(board: List<String>): Boolean {
+        require.invoke(Clojure.read("clojure-tic-tac-toe.rules"))
+        val boardVector = vector.invoke(Clojure.read(convertStringArrayToListString(board)))
+        return winner.invoke(boardVector) as Boolean
+    }
+
+    fun isThereTie(board: List<String>): Boolean {
+        require.invoke(Clojure.read("clojure-tic-tac-toe.rules"))
+        val boardVector = vector.invoke(Clojure.read(convertStringArrayToListString(board)))
+        return tie.invoke(boardVector) as Boolean
+    }
+
     private fun convertStringArrayToListString(array: List<String>?): String {
-        if (array?.size != boardLength) {
-            throw InvalidBoardLengthException()
-        }
         val stringBuilder = StringBuilder()
         val iterator = array!!.iterator()
         stringBuilder.append("(")
-        while(iterator.hasNext()) {
+        while (iterator.hasNext()) {
             val ele = convertCharToSymbol(iterator.next())
             stringBuilder.append(ele)
             if (iterator.hasNext()) {
@@ -71,6 +103,6 @@ class TTTEngineParser {
         require.invoke(Clojure.read("clojure-tic-tac-toe.turn-controller"))
         val opponentPlayer = Clojure.`var`("clojure-tic-tac-toe.turn-controller", "opponent-player")
         return opponentPlayer.invoke(boardVector)
-
     }
+
 }

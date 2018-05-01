@@ -10,6 +10,6 @@ fun main(args : Array<String>) {
 
 fun configureRouter(): Router {
     val router = Router()
-    router.addRoute("/move", HttpMethod.POST, GameController())
+    router.addRoute("/move", listOf(HttpMethod.POST, HttpMethod.OPTIONS), GameController())
     return router
 }
