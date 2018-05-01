@@ -2,6 +2,7 @@ import com.beust.klaxon.JsonArray
 import com.beust.klaxon.JsonObject
 import com.beust.klaxon.Parser
 import http.controllers.IController
+import http.method.HttpMethod
 import http.request.HttpRequest
 import http.response.HttpResponse
 import http.status.Status
@@ -11,11 +12,22 @@ import java.nio.charset.Charset
 class GameController : IController {
 
     private val tttEngineParser: TTTEngineParser = TTTEngineParser()
-    private val httpResponse = HttpResponse()
+
     private val boardLength = 9
     private val validMove = "[^0-8]"
 
     override fun generateResponse(request: HttpRequest): HttpResponse {
+        return when (request.method()) {
+            HttpMethod.OPTIONS -> handleOptions()
+            HttpMethod.POST -> handlePost(request)
+            else -> {
+                HttpResponse()
+            }
+        }
+    }
+
+    private fun handlePost(request: HttpRequest): HttpResponse {
+        val httpResponse = HttpResponse()
         val responseData = ResponseData()
         val json: JsonObject = getJsonObject(request, responseData)
         val board = getBoard(json, responseData)
@@ -29,9 +41,26 @@ class GameController : IController {
             responseData.board = gameData.board
         }
 
+        responseData.gameOver = tttEngineParser.isGameOver(responseData.board)
+        responseData.tied = tttEngineParser.isThereTie(responseData.board)
+        responseData.winner = tttEngineParser.getWinner(responseData.board)
+        responseData.currentPlayer = tttEngineParser.getCurrentPlayerAsString(responseData.board)
+
         httpResponse.status = if (responseData.errors.isEmpty()) Status.OK else Status.Unprocessable_Entity
         httpResponse.setBody(generateBody(responseData))
         httpResponse.addHeader("Content-Type", "application/json")
+        httpResponse.addHeader("Access-Control-Allow-Origin", "*")
+        return httpResponse
+    }
+
+    private fun handleOptions(): HttpResponse {
+        val httpResponse = HttpResponse()
+        httpResponse.setBody("")
+        httpResponse.addHeader("Access-Control-Allow-Origin", "*")
+        httpResponse.addHeader("Access-Control-Allow-Methods", "POST, OPTIONS")
+        httpResponse.addHeader("Access-Control-Allow-Headers", "x-requested-with, Content-Type, Accept-Encoding, Accept-Language, Cookie, Referer")
+        httpResponse.addHeader("Access-Control-Max-Age", "86400")
+        httpResponse.status = Status.OK
         return httpResponse
     }
 
