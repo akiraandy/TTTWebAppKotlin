@@ -38,7 +38,8 @@ will return a JSON object that looks like so:
 ```
 {
   "board": ["X", "1", "2", "3", "4", "5", "6", "7", "8"],
-  "move": 1
+  "errors": [],
+  ...
 }
 ```
 
